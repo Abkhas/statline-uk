@@ -52,20 +52,20 @@ const Views = (function () {
   // main.js calls these on period/unit changes; the first call builds the
   // card's initial content too.
 
-  function gdpAnnual(range) {
+  function gdpAnnual(range, height) {
     const pts = D.gdp.annualGrowth.filter(function (p) { return range === "5y" ? p.year >= 2021 : true; })
       .map(function (p) { return { label: String(p.year), value: p.growth, highlight: p.year === 2025 }; });
-    const chart = Charts.vbar(pts, { unit: "%", decimals: 1, aria: "Real GDP growth by year, percent" });
+    const chart = Charts.vbar(pts, { unit: "%", decimals: 1, height: height || 260, aria: "Real GDP growth by year, percent" });
     const table = Charts.dataTable(["Year", "Real GDP growth"],
       D.gdp.annualGrowth.map(function (p) { return [String(p.year), (p.growth > 0 ? "+" : "") + p.growth.toFixed(1) + "%"]; }),
       "Real GDP growth, year on year. 2020 is the pandemic contraction; 2021 the rebound.");
     return { chart: chart, table: table };
   }
 
-  function cpihLine(range) {
+  function cpihLine(range, height) {
     const pts = D.prices.monthly.filter(function (p, i) { return range === "12m" ? i >= 12 : true; })
       .map(function (p) { return { label: p.m, value: p.v }; });
-    const chart = Charts.line(pts, { unit: "%", decimals: 1, target: D.prices.target, targetLabel: "Bank target 2%",
+    const chart = Charts.line(pts, { unit: "%", decimals: 1, height: height || 260, target: D.prices.target, targetLabel: "Bank target 2%",
       aria: "CPIH 12-month inflation rate by month, percent" });
     const table = Charts.dataTable(["Month", "CPIH 12-month rate"],
       D.prices.monthly.map(function (p) { return [p.m, p.v.toFixed(1) + "%"]; }),
@@ -73,10 +73,10 @@ const Views = (function () {
     return { chart: chart, table: table };
   }
 
-  function gdpQuarterly(range) {
+  function gdpQuarterly(range, height) {
     const pts = D.gdp.quarterly.filter(function (p) { return range === "2026" ? p.q.indexOf("2026") !== -1 : true; })
       .map(function (p) { return { label: p.q, value: p.growth }; });
-    const chart = Charts.line(pts, { unit: "%", decimals: 1, labelEvery: 1,
+    const chart = Charts.line(pts, { unit: "%", decimals: 1, height: height || 260, labelEvery: 1,
       aria: "Real GDP growth by quarter, percent on previous quarter" });
     const table = Charts.dataTable(["Quarter", "Real GDP growth (on previous quarter)"],
       D.gdp.quarterly.map(function (p) { return [p.q, (p.growth > 0 ? "+" : "") + p.growth.toFixed(1) + "%"]; }),
@@ -150,11 +150,11 @@ const Views = (function () {
 
   // Registry main.js uses to rebuild a card after a control change.
   const ChartBuilders = {
-    "home-gdp": function (range) { return gdpAnnual(range || "7y"); },
-    "home-cpih": function (range) { return cpihLine(range || "24m"); },
+    "home-gdp": function (range) { return gdpAnnual(range || "7y", 200); },
+    "home-cpih": function (range) { return cpihLine(range || "24m", 200); },
     "home-nations": function () { return nationsBars(); },
-    "economy-gdp": function (range) { return gdpAnnual(range || "7y"); },
-    "economy-quarterly": function (range) { return gdpQuarterly(range || "all"); },
+    "economy-gdp": function (range) { return gdpAnnual(range || "7y", 210); },
+    "economy-quarterly": function (range) { return gdpQuarterly(range || "all", 210); },
     "people-pop": function (range) { return populationLine(range || "11y"); },
     "people-nations": function () { return nationsBars(); },
     "people-life": function () { return lifeExpectancyBars(); },
@@ -184,15 +184,15 @@ const Views = (function () {
       { route: "#/releases", title: "Latest releases", big: "10 ONS releases", text: "Every bulletin behind the figures on this site, dated and linked to its section." }
     ];
     let s = '<section class="hero"><h1>The UK in numbers</h1>' +
-      '<p class="standfirst">Population, the economy, work and prices — from the latest Office for National Statistics releases, in one place.</p>' +
+      '<p class="standfirst">Population, the economy, work and prices — from the latest ONS releases, in one place.</p>' +
       '<p class="updated"><strong>Updated ' + esc(D.site.updated) + '.</strong> ' + esc(D.site.note) + '</p></section>';
     s += '<div class="kpi-grid">' + D.kpis.map(kpiTile).join("") + '</div>';
     s += '<div class="grid-2">' +
       chartCard("home-gdp", "GDP grew 1.2% in 2025 — the fastest since 2022",
-        "<strong>Real GDP rose 1.2% in 2025</strong>, after 1.1% in 2024. The 2020 pandemic fall of 10.4% is the deepest in the series.",
+        "<strong>Real GDP rose 1.2% in 2025</strong>, after 1.1% in 2024.",
         gdp.chart, D.gdp.source, periodControls("home-gdp", [{ key: "7y", label: "2019–2025" }, { key: "5y", label: "2021–2025" }], "7y")) +
       chartCard("home-cpih", "Inflation is 3.7% — above the Bank of England’s 2% target",
-        "<strong>CPIH rose 3.7%</strong> in the year to October 2026, up from 3.6% in September. It has been above target for two years.",
+        "<strong>CPIH rose 3.7%</strong> in the year to Oct 2026, up from 3.6% in Sep.",
         cpih.chart, D.prices.source, periodControls("home-cpih", [{ key: "24m", label: "24 months" }, { key: "12m", label: "12 months" }], "24m")) +
       '</div>';
     s += '<div class="grid-2">' +
@@ -449,6 +449,7 @@ const Views = (function () {
       '<dt>CPIH vs CPI</dt><dd>CPIH is CPI plus owner occupiers’ housing costs and council tax. It is the ONS’s lead measure of inflation. The Bank of England’s 2% target is set on CPI.</dd>' +
       '<dt>Seasonally adjusted (SA)</dt><dd>Adjusted to remove regular seasonal patterns (for example, hiring before Christmas), so quarter-to-quarter changes can be compared fairly.</dd>' +
       '<dt>Median vs mean</dt><dd>The median is the middle earner: half earn more, half earn less. The mean (average) is pulled up by very high earners, so the ONS reports pay as a median.</dd>' +
+      '<dt>Percentage-point changes</dt><dd>The ONS works out a change in percentage points from its unrounded estimates, then rounds the result. So the published change can differ by 0.1 points from subtracting two rounded figures: unemployment is 4.6%, down 0.3 points on the year, while the rounded rate a year earlier was 5.0%; employment is 75.4%, up 0.4 points, against 75.1% a year earlier.</dd>' +
       '<dt>Provisional</dt><dd>ASHE 2025 estimates are provisional and may be revised in the next annual release.</dd>' +
       '<dt>Real terms</dt><dd>Adjusted for inflation (here, CPIH), so a “real” rise means pay grew faster than prices.</dd>' +
       '<dt>Pay conversions</dt><dd>On the Work page, £ per hour is the weekly median divided by 37.5 hours and £ per year is the weekly median times 52. Those are conversions for comparison; the published ASHE figures are £19.67 an hour and £39,039 a year for full-time workers in post at least a year.</dd>' +

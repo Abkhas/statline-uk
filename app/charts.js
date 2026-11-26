@@ -43,7 +43,7 @@ const Charts = (function () {
     for (let g = 0; g <= 4; g++) {
       const gv = min + (span * g) / 4, gy = y(gv);
       s += '<line x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '" stroke="' + GRID + '" stroke-width="1"/>';
-      s += '<text x="' + (padL - 6) + '" y="' + (gy + 4).toFixed(1) + '" font-size="12" fill="' + SLATE + '" text-anchor="end">' + fmt(gv, opts.decimals || 0) + (opts.unit || "") + '</text>';
+      s += '<text x="' + (padL - 6) + '" y="' + (gy + 4).toFixed(1) + '" font-size="13" fill="' + SLATE + '" text-anchor="end">' + fmt(gv, opts.decimals || 0) + (opts.unit || "") + '</text>';
     }
     s += '<line x1="' + padL + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - padR) + '" y2="' + y(0).toFixed(1) + '" stroke="' + NAVY + '" stroke-width="1.5"/>';
     points.forEach(function (p, i) {
@@ -58,7 +58,7 @@ const Charts = (function () {
       } else {
         s += '<text x="' + cx.toFixed(1) + '" y="' + (top - 7).toFixed(1) + '" font-size="13" font-weight="700" fill="' + NAVY + '" text-anchor="middle">' + (p.value > 0 ? "+" : "") + fmt(p.value, opts.decimals || 0) + (opts.unit || "") + '</text>';
       }
-      s += '<text x="' + cx.toFixed(1) + '" y="' + (H - 10) + '" font-size="12" fill="' + SLATE + '" text-anchor="middle">' + esc(p.label) + '</text>';
+      s += '<text x="' + cx.toFixed(1) + '" y="' + (H - 10) + '" font-size="13" fill="' + SLATE + '" text-anchor="middle">' + esc(p.label) + '</text>';
     });
     return s + '</svg>';
   }
@@ -68,7 +68,7 @@ const Charts = (function () {
   function line(points, opts) {
     opts = opts || {};
     const W = opts.width || 560, H = opts.height || 260;
-    const padL = 46, padR = 54, padT = 26, padB = 30;
+    const padL = 46, padR = 64, padT = 26, padB = 30;
     const values = points.map(function (p) { return p.value; });
     let lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
     if (opts.target !== undefined) { lo = Math.min(lo, opts.target); hi = Math.max(hi, opts.target); }
@@ -81,11 +81,11 @@ const Charts = (function () {
     for (let g = 0; g <= 4; g++) {
       const gv = lo + ((hi - lo) * g) / 4, gy = y(gv);
       s += '<line x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '" stroke="' + GRID + '" stroke-width="1"/>';
-      s += '<text x="' + (padL - 6) + '" y="' + (gy + 4).toFixed(1) + '" font-size="12" fill="' + SLATE + '" text-anchor="end">' + fmt(gv, opts.decimals === undefined ? 1 : opts.decimals) + (opts.unit || "") + '</text>';
+      s += '<text x="' + (padL - 6) + '" y="' + (gy + 4).toFixed(1) + '" font-size="13" fill="' + SLATE + '" text-anchor="end">' + fmt(gv, opts.decimals === undefined ? 1 : opts.decimals) + (opts.unit || "") + '</text>';
     }
     if (opts.target !== undefined) {
       s += '<line x1="' + padL + '" y1="' + y(opts.target).toFixed(1) + '" x2="' + (W - padR) + '" y2="' + y(opts.target).toFixed(1) + '" stroke="' + AMBER + '" stroke-width="1.5" stroke-dasharray="5 4"/>';
-      s += '<text x="' + (padL + 4) + '" y="' + (y(opts.target) - 6).toFixed(1) + '" font-size="12" font-weight="700" fill="#8A6400">' + esc(opts.targetLabel || "") + '</text>';
+      s += '<text x="' + (padL + 4) + '" y="' + (y(opts.target) - 6).toFixed(1) + '" font-size="13" font-weight="700" fill="#8A6400">' + esc(opts.targetLabel || "") + '</text>';
     }
     const d = points.map(function (p, i) { return (i === 0 ? "M" : "L") + x(i).toFixed(1) + " " + y(p.value).toFixed(1); }).join(" ");
     s += '<path d="' + d + '" fill="none" stroke="' + TEAL + '" stroke-width="2.5" stroke-linejoin="round"/>';
@@ -93,7 +93,7 @@ const Charts = (function () {
       const showLabel = opts.labelEvery ? (i % opts.labelEvery === 0) : (i === points.length - 1);
       s += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(p.value).toFixed(1) + '" r="3.5" fill="#FAF9F6" stroke="' + TEAL + '" stroke-width="2"/>';
       if (i % Math.ceil(points.length / 6) === 0 || i === points.length - 1) {
-        s += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 10) + '" font-size="12" fill="' + SLATE + '" text-anchor="middle">' + esc(p.label) + '</text>';
+        s += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 10) + '" font-size="13" fill="' + SLATE + '" text-anchor="middle">' + esc(p.label) + '</text>';
       }
       if (showLabel) {
         if (i === 0) {
@@ -106,7 +106,7 @@ const Charts = (function () {
       }
     });
     const last = points[points.length - 1];
-    s += '<text x="' + (x(points.length - 1) + 8).toFixed(1) + '" y="' + (y(last.value) + 4).toFixed(1) + '" font-size="12" font-weight="700" fill="' + NAVY + '">' + esc(last.label) + '</text>';
+    s += '<text x="' + (x(points.length - 1) + 8).toFixed(1) + '" y="' + (y(last.value) + 4).toFixed(1) + '" font-size="13" font-weight="700" fill="' + NAVY + '">' + esc(last.label) + '</text>';
     return s + '</svg>';
   }
 
